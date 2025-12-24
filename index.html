@@ -56,7 +56,6 @@
         // --- Data & Assets ---
 
         // Reordered: New words first (Today, Tomorrow, You, Good, No)
-        // Removed Tashkent (id: 20) as requested
         const vocabulary = [
             { id: 15, char: '今天', pinyin: 'jīntiān', uzbek: 'Bugun', icon: 'today' }, 
             { id: 16, char: '明天', pinyin: 'míngtiān', uzbek: 'Ertaga', icon: 'tomorrow' },
@@ -233,7 +232,7 @@
                     </div>
                 </div>
                 <div className="max-w-4xl mx-auto mt-4 flex space-x-1 overflow-x-auto pb-2">
-                    {['vocab', 'dialogue', 'grammar', 'practice'].map((view) => (
+                    {['vocab', 'dialogue', 'grammar', 'gaptuzish', 'practice'].map((view) => (
                         <button
                             key={view}
                             onClick={() => setView(view)}
@@ -246,6 +245,7 @@
                             {view === 'vocab' && "So'zlar (Lug'at)"}
                             {view === 'dialogue' && "Suhbat (Dialogue)"}
                             {view === 'grammar' && "Grammatika"}
+                            {view === 'gaptuzish' && "Gap tuzish"}
                             {view === 'practice' && "Mashq (Sinov)"}
                         </button>
                     ))}
@@ -368,10 +368,6 @@
 
         const GrammarSection = () => {
             const [activeTab, setActiveTab] = useState('tai');
-            const [sentence, setSentence] = useState([]);
-            const [feedback, setFeedback] = useState("");
-            const [level, setLevel] = useState(0); 
-            const [isCorrect, setIsCorrect] = useState(false); 
             
             const exercises = {
                 tai: {
@@ -382,7 +378,80 @@
                         { char: "太热了", pinyin: "Tài rè le", trans: "Juda issiq", icon: "hot", color: "orange" },
                         { char: "太冷了", pinyin: "Tài lěng le", trans: "Juda sovuq", icon: "cold", color: "blue" },
                         { char: "太好了", pinyin: "Tài hǎo le", trans: "Juda yaxshi", icon: "good", color: "green" }
-                    ],
+                    ]
+                },
+                zenmeyang: {
+                    title: "... 怎么样? (... Qanday?)",
+                    subtitle: "... zěnmeyàng?",
+                    desc: (<span>Biror narsa yoki holatning qandayligini so'rash uchun <strong>Ega (Subject) + 怎么样?</strong> so'zidan foydalanamiz.</span>),
+                    examples: [
+                        { char: "天气怎么样", pinyin: "Tiānqì zěnmeyàng?", trans: "Ob-havo qanday?", icon: "weather", color: "teal" },
+                        { char: "身体怎么样", pinyin: "Shēntǐ zěnmeyàng?", trans: "Sog'liq qanday?", icon: "body", color: "red" },
+                        { char: "今天天气怎么样", pinyin: "Jīntiān tiānqì zěnmeyàng?", trans: "Bugun ob-havo qanday?", icon: "today", color: "indigo" },
+                        { char: "明天天气怎么样", pinyin: "Míngtiān tiānqì zěnmeyàng?", trans: "Ertaga ob-havo qanday?", icon: "tomorrow", color: "purple" },
+                        { char: "你怎么样", pinyin: "Nǐ zěnmeyàng?", trans: "Siz qandaysiz?", icon: "you", color: "pink" } 
+                    ]
+                }
+            };
+
+            const currentEx = exercises[activeTab];
+
+            return (
+                <div className="p-4 max-w-4xl mx-auto">
+                    <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+                        
+                        {/* Grammar Tabs */}
+                        <div className="flex border-b border-gray-200 mb-6">
+                            <button 
+                                onClick={() => setActiveTab('tai')}
+                                className={`pb-2 px-4 text-lg font-bold transition-colors border-b-2 ${activeTab === 'tai' ? 'border-teal-600 text-teal-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+                            >
+                                太...了 (Tai...le)
+                            </button>
+                            <button 
+                                onClick={() => setActiveTab('zenmeyang')}
+                                className={`pb-2 px-4 text-lg font-bold transition-colors border-b-2 ${activeTab === 'zenmeyang' ? 'border-teal-600 text-teal-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+                            >
+                                ...怎么样? (...Zěnmeyàng?)
+                            </button>
+                        </div>
+
+                        <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                            <span className="bg-teal-100 text-teal-800 text-sm font-semibold mr-2 px-2.5 py-0.5 rounded">Grammatika</span>
+                            {currentEx.title}
+                        </h2>
+                        <p className="text-gray-600 mb-4">
+                            {currentEx.desc}
+                        </p>
+                        
+                        {/* Examples */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            {currentEx.examples.map((ex, idx) => (
+                                <div key={idx} className={`bg-${ex.color}-50 p-4 rounded-lg border border-${ex.color}-100 cursor-pointer hover:shadow-md transition-shadow`} onClick={() => speak(ex.char)}>
+                                    <div className="flex items-center space-x-2 mb-2">
+                                        <Icons name={ex.icon} className={`w-6 h-6 text-${ex.color}-500`} />
+                                        <span className="text-lg font-bold text-gray-800">{ex.char}</span>
+                                    </div>
+                                    <p className="text-gray-500 font-medium">{ex.pinyin}</p>
+                                    <p className="text-gray-400 text-sm italic">({ex.trans})</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const GapTuzishSection = () => {
+            const [activeTab, setActiveTab] = useState('tai');
+            const [sentence, setSentence] = useState([]);
+            const [feedback, setFeedback] = useState("");
+            const [level, setLevel] = useState(0); 
+            const [isCorrect, setIsCorrect] = useState(false); 
+            
+            const exercises = {
+                tai: {
+                    title: "太 ... 了 (Juda ...)",
                     levels: [
                         {
                             targetSentence: "太热了",
@@ -422,15 +491,6 @@
                 },
                 zenmeyang: {
                     title: "... 怎么样? (... Qanday?)",
-                    subtitle: "... zěnmeyàng?",
-                    desc: (<span>Biror narsa yoki holatning qandayligini so'rash uchun <strong>Ega (Subject) + 怎么样?</strong> so'zidan foydalanamiz.</span>),
-                    examples: [
-                        { char: "天气怎么样", pinyin: "Tiānqì zěnmeyàng?", trans: "Ob-havo qanday?", icon: "weather", color: "teal" },
-                        { char: "身体怎么样", pinyin: "Shēntǐ zěnmeyàng?", trans: "Sog'liq qanday?", icon: "body", color: "red" },
-                        { char: "今天天气怎么样", pinyin: "Jīntiān tiānqì zěnmeyàng?", trans: "Bugun ob-havo qanday?", icon: "today", color: "indigo" },
-                        { char: "明天天气怎么样", pinyin: "Míngtiān tiānqì zěnmeyàng?", trans: "Ertaga ob-havo qanday?", icon: "tomorrow", color: "purple" },
-                        { char: "你怎么样", pinyin: "Nǐ zěnmeyàng?", trans: "Siz qandaysiz?", icon: "you", color: "pink" } // Added "How are you?"
-                    ],
                     levels: [
                         {
                             targetSentence: "天气怎么样",
@@ -549,8 +609,7 @@
             return (
                 <div className="p-4 max-w-4xl mx-auto">
                     <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-                        
-                        {/* Grammar Tabs */}
+                        {/* Gap Tuzish Tabs */}
                         <div className="flex border-b border-gray-200 mb-6">
                             <button 
                                 onClick={() => handleTabSwitch('tai')}
@@ -564,28 +623,6 @@
                             >
                                 ...怎么样? (...Zěnmeyàng?)
                             </button>
-                        </div>
-
-                        <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
-                            <span className="bg-teal-100 text-teal-800 text-sm font-semibold mr-2 px-2.5 py-0.5 rounded">Grammatika</span>
-                            {currentEx.title}
-                        </h2>
-                        <p className="text-gray-600 mb-4">
-                            {currentEx.desc}
-                        </p>
-                        
-                        {/* Examples */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                            {currentEx.examples.map((ex, idx) => (
-                                <div key={idx} className={`bg-${ex.color}-50 p-4 rounded-lg border border-${ex.color}-100 cursor-pointer hover:shadow-md transition-shadow`} onClick={() => speak(ex.char)}>
-                                    <div className="flex items-center space-x-2 mb-2">
-                                        <Icons name={ex.icon} className={`w-6 h-6 text-${ex.color}-500`} />
-                                        <span className="text-lg font-bold text-gray-800">{ex.char}</span>
-                                    </div>
-                                    <p className="text-gray-500 font-medium">{ex.pinyin}</p>
-                                    <p className="text-gray-400 text-sm italic">({ex.trans})</p>
-                                </div>
-                            ))}
                         </div>
 
                         <div className="border-t border-gray-200 pt-6">
@@ -829,6 +866,7 @@
                         {currentView === 'vocab' && <VocabularySection />}
                         {currentView === 'dialogue' && <DialogueSection />}
                         {currentView === 'grammar' && <GrammarSection />}
+                        {currentView === 'gaptuzish' && <GapTuzishSection />}
                         {currentView === 'practice' && <PracticeSection />}
                     </main>
                 </div>
